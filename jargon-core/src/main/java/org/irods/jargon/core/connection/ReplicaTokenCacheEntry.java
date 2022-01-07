@@ -3,6 +3,7 @@
  */
 package org.irods.jargon.core.connection;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -28,6 +29,10 @@ public class ReplicaTokenCacheEntry {
 	 * Count of open files
 	 */
 	private int openCount = 0;
+	/**
+	 * Count of the number of references to this cache entry.
+	 */
+	private AtomicInteger refCount = new AtomicInteger();
 
 	/**
 	 * a reentrant lock that will be used by the open and close methods for streams
@@ -67,13 +72,25 @@ public class ReplicaTokenCacheEntry {
 	public void setOpenCount(int openCount) {
 		this.openCount = openCount;
 	}
-
+	
 	public void incrementOpenCount() {
 		this.openCount = openCount + 1;
 	}
 
 	public void decrementOpenCount() {
 		this.openCount = openCount - 1;
+	}
+
+	public int getRefCount() {
+		return refCount.get();
+	}
+	
+	public int incrementRefCount() {
+		return refCount.incrementAndGet();
+	}
+
+	public int decrementRefCount() {
+		return refCount.decrementAndGet();
 	}
 
 	public Lock getLock() {

@@ -47,7 +47,22 @@ public class ReplicaTokenCacheManager {
 		ReplicaTokenCacheKey cacheKey = ReplicaTokenCacheKey.instance(logicalPath, userName);
 
 		replicaTokenCache.putIfAbsent(cacheKey, new ReplicaTokenCacheEntry(logicalPath));
-		return replicaTokenCache.get(cacheKey).getLock();
+
+		ReplicaTokenCacheEntry cacheEntry = replicaTokenCache.get(cacheKey);
+		
+		// The reference counter for this cache entry keeps things in sync
+		// between threads. The counter is used to determine when this cache
+		// entry is allowed to be removed from the replica token cache.
+		//
+		// The lock is not enough to guard against incorrect operation. This
+		// counter helps guard against the situation where a lock is obtained,
+		// but not acquired, and the cache entry is removed.
+		//
+		// It is required that we always know how many threads have obtained
+		// the lock for the same cache entry.
+		cacheEntry.incrementRefCount();
+		
+		return cacheEntry.getLock();
 
 	}
 
@@ -167,8 +182,8 @@ public class ReplicaTokenCacheManager {
 	 * flags.
 	 *
 	 * @param logicalPath {@code String} with the logical path to the file to be
-	 *                    closed * @param userName {@code String} which is the user
-	 *                    name
+	 *                    closed
+	 * @param userName    {@code String} which is the user name
 	 * @return {@code boolean} with a value of {@code true} when this is the last
 	 *         reference to the file
 	 */
@@ -195,10 +210,61 @@ public class ReplicaTokenCacheManager {
 			log.error("replica count less than zero, this is an unexpected condition that indicates a system problem");
 			throw new IllegalStateException("replica count should never be less than zero");
 		} else if (replicaTokenCacheEntry.getOpenCount() == 0) {
-			replicaTokenCache.remove(cacheKey);
 			return true;
 		} else {
 			return false;
+		}
+
+	}
+
+	/**
+	 * This method requires the caller to first call {@code obtainReplicaTokenLock}
+	 * with a {@code tryLock()}.
+	 *
+	 * This method is called when a file is being closed, and where a replica token
+	 * was obtained. This method will remove the cache entry when the open count
+	 * becomes zero and the reference count becomes zero (i.e. no other thread has
+	 * invoked {@code obtainReplicaTokenLock} on the same cache entry).
+	 *
+	 * @param logicalPath {@code String} with the logical path to the file to be
+	 *                    closed
+	 * @param userName    {@code String} which is the user name
+	 */
+	public void removeReplicaToken(final String logicalPath, final String userName) {
+
+		log.info("removeReplicaToken()");
+
+		if (logicalPath == null || logicalPath.isEmpty()) {
+			throw new IllegalArgumentException("null or empty logicalPath");
+		}
+
+		if (userName == null || userName.isEmpty()) {
+			throw new IllegalArgumentException("null or empty userName");
+		}
+
+		log.info("logicalPath:{}", logicalPath);
+		log.info("userName:{}", userName);
+
+		ReplicaTokenCacheKey cacheKey = ReplicaTokenCacheKey.instance(logicalPath, userName);
+
+		ReplicaTokenCacheEntry replicaTokenCacheEntry = replicaTokenCache.get(cacheKey);
+		if (replicaTokenCacheEntry.getOpenCount() == 0) {
+		    // Remove the cache entry if no other thread is waiting to acquire the lock.
+		    if (replicaTokenCacheEntry.decrementRefCount() == 0) {
+		        replicaTokenCache.remove(cacheKey);
+		    }
+		    else {
+		        if (replicaTokenCacheEntry.getRefCount() < 0) {
+		            log.error("reference count less than zero, this is an unexpected condition that indicates a system problem");
+		        }
+
+		        // At this point, we know that all streams to the replica associated
+		        // with this replica token have been closed. Because another thread
+		        // has invoked obtainReplicaTokenLock(), we must leave the cache entry
+		        // in the replica token cache. We need to clear the replica token so
+		        // that the other thread can successfully open the replica.
+		        replicaTokenCacheEntry.setReplicaToken("");
+		    }
 		}
 
 	}

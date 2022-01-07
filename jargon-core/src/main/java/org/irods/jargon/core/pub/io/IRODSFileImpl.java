@@ -1414,6 +1414,8 @@ public class IRODSFileImpl extends File implements IRODSFile {
 					ApiPluginExecutor apiPluginExecutor = this.getIrodsFileSystemAO().getIRODSAccessObjectFactory()
 							.getApiPluginExecutor(this.getIrodsFileSystemAO().getIRODSAccount());
 					apiPluginExecutor.callPluggableApi(ApiPluginConstants.REPLICA_CLOSE_APN, replicaCloseString);
+					IRODSSession.replicaTokenCacheManager.removeReplicaToken(
+					        this.getAbsolutePath(), this.getIrodsFileSystemAO().getIRODSAccount().getUserName());
 
 				} catch (JsonProcessingException e) {
 					log.error("error writing json", e);
