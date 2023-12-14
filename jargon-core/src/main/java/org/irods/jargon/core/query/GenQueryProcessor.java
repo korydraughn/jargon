@@ -92,6 +92,7 @@ public class GenQueryProcessor {
 			}
 
 			int totalRecords = response.getTag("totalRowCount").getIntValue();
+			log.info("GenQuery response: {}", response.toString());
 			log.info("total records:{}", totalRecords);
 
 			result = QueryResultProcessingUtils.translateResponseIntoResultSet(response, columnNames, continuation,
