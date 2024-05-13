@@ -1110,4 +1110,35 @@ public interface DataObjectAO extends FileCatalogObjectAO {
 	void modifyDataObjectSysTime(final Date time, final String dataObjectAbsolutePath)
 			throws FileNotFoundException, JargonException;
 
+	/**
+	 * 
+	 * @param logicalPath
+	 * @param newDataSize
+	 * @return
+	 * @throws JargonException
+	 */
+	String truncateReplica(final String logicalPath, final long newDataSize) throws JargonException;
+
+	/**
+	 * 
+	 * @param logicalPath
+	 * @param replicaNumber
+	 * @param newDataSize
+	 * @return
+	 * @throws JargonException
+	 */
+	String truncateReplicaByReplicaNumber(final String logicalPath, final int replicaNumber,
+			final long newDataSize) throws JargonException;
+
+	/**
+	 * 
+	 * @param logicalPath
+	 * @param resource
+	 * @param newDataSize
+	 * @return
+	 * @throws JargonException
+	 */
+	String truncateReplicaByResource(final String logicalPath, final String resource, final long newDataSize)
+			throws JargonException;
+
 }
