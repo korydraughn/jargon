@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.irods</groupId>
 		<artifactId>jargon-pom</artifactId>
-		<version>4.3.3.0-RELEASE</version>
+		<version>4.3.4.0-SNAPSHOT</version>
 	</parent>
 	<name>Jargon</name>
 	<description>Core Java API and related libraries for iRODS</description>
@@ -33,7 +33,8 @@
 		<repository>
 			<id>dice.repository snaps</id>
 			<name>dice.repository.snapshots</name>
-			<url>https://raw.github.com/DICE-UNC/DICE-Maven/master/snapshots</url>
+                        <!-- <url>https://raw.githubusercontent.com/korydraughn/DICE-Maven/master/snapshots</url> -->
+			<url>https://raw.githubusercontent.com/irods/irods_maven/main/snapshots</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -46,7 +47,8 @@
 		<repository>
 			<id>dice.repository</id>
 			<name>dice.repository</name>
-			<url>https://raw.github.com/DICE-UNC/DICE-Maven/master/releases</url>
+                        <!-- <url>https://raw.githubusercontent.com/korydraughn/DICE-Maven/master/releases</url> -->
+			<url>https://raw.githubusercontent.com/irods/irods_maven/main/releases</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -67,12 +69,14 @@
 		<repository>
 			<id>internal.repo</id>
 			<name>internal.repo</name>
-			<url>file://${git.repo.root}/releases</url>
+                        <!-- <url>file:///home/kory/dev/github/DICE-Maven/releases</url> -->
+                        <url>file:///home/kory/dev/github/irods_maven/releases</url>
 		</repository>
 		<snapshotRepository>
 			<id>internal.repo.snapshot</id>
 			<name>internal.repo.snapshot</name>
-			<url>file://${git.repo.root}/snapshots</url>
+                        <!-- <url>file:///home/kory/dev/github/DICE-Maven/snapshots</url> -->
+                        <url>file:///home/kory/dev/github/irods_maven/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<dependencies>
