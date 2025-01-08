@@ -42,7 +42,8 @@ public class TicketInp extends AbstractIRODSPackingInstruction {
 	protected String arg4 = "";
 	protected String arg5 = "";
 	protected String arg6 = "";
-
+	protected List<KeyValuePair> condInput;
+	
 	/**
 	 * Create an instance of the packing instruction suitable for setting the
 	 * session with the given ticket. This session initialization is done before get
@@ -59,6 +60,11 @@ public class TicketInp extends AbstractIRODSPackingInstruction {
 		return new TicketInp(TICKET_ADMIN_INP_API_NBR, "session", ticketString, BLANK, BLANK, BLANK, BLANK);
 	}
 
+	protected TicketInp() {
+		setApiNumber(TICKET_ADMIN_INP_API_NBR);
+		condInput = new ArrayList<>();
+	}
+
 	/**
 	 * Private constructor for TicketAdminInp, use the instance() methods to create
 	 * per command
@@ -73,13 +79,38 @@ public class TicketInp extends AbstractIRODSPackingInstruction {
 	 */
 	protected TicketInp(final int apiNbr, final String arg1, final String arg2, final String arg3, final String arg4,
 			final String arg5, final String arg6) {
-
 		this.arg1 = arg1;
 		this.arg2 = arg2;
 		this.arg3 = arg3;
 		this.arg4 = arg4;
 		this.arg5 = arg5;
 		this.arg6 = arg6;
+		condInput = new ArrayList<>();
+		setApiNumber(apiNbr);
+	}
+
+	/**
+	 * Private constructor for TicketAdminInp, use the instance() methods to create
+	 * per command
+	 *
+	 *
+	 * @param arg1
+	 * @param arg2
+	 * @param arg3
+	 * @param arg4
+	 * @param arg5
+	 * @param arg6
+	 * @param condInput
+	 */
+	protected TicketInp(final int apiNbr, final String arg1, final String arg2, final String arg3, final String arg4,
+			final String arg5, final String arg6, final List<KeyValuePair> condInput) {
+		this.arg1 = arg1;
+		this.arg2 = arg2;
+		this.arg3 = arg3;
+		this.arg4 = arg4;
+		this.arg5 = arg5;
+		this.arg6 = arg6;
+		this.condInput = condInput;
 		setApiNumber(apiNbr);
 	}
 
@@ -92,11 +123,9 @@ public class TicketInp extends AbstractIRODSPackingInstruction {
 	 */
 	@Override
 	public Tag getTagValue() throws JargonException {
-		// FIXME: refactor for kvps
-		List<KeyValuePair> kvps = new ArrayList<KeyValuePair>();
 		Tag message = new Tag(PI_TAG, new Tag[] { new Tag(ARG1, arg1), new Tag(ARG2, arg2), new Tag(ARG3, arg3),
 				new Tag(ARG4, arg4), new Tag(ARG5, arg5), new Tag(ARG6, arg6) });
-		message.addTag(createKeyValueTag(kvps));
+		message.addTag(createKeyValueTag(condInput));
 
 		return message;
 	}
