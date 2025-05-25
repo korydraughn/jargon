@@ -1,0 +1,53 @@
+services:
+  irods-catalog-provider:
+    container_name: irods-catalog-provider
+    build:
+        context: .
+        dockerfile: Dockerfile.provider
+        args:
+            irods_package_version: 5.0.0-0~jammy
+    hostname: icat.example.org
+    healthcheck:
+      test: ["CMD", "su", "-", "irods", "-c", "ils"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+      start_interval: 2s
+    networks:
+      irodsnet:
+        aliases:
+          - icat.example.org
+
+  irods-catalog-consumer-resource1:
+    container_name: irods-catalog-consumer-resource1
+    build:
+        context: .
+        dockerfile: Dockerfile.consumer
+        args:
+            irods_package_version: 5.0.0-0~jammy
+    hostname: resource1.example.org
+    networks:
+      irodsnet:
+        aliases:
+          - resource1.example.org
+    depends_on:
+      irods-catalog-provider:
+        condition: service_healthy
+
+  maven:
+    container_name: maven
+    build:
+        context: .
+        dockerfile: Dockerfile.testbuild
+    volumes:
+      - ../..:/usr/src/jargon
+      - ../../settings.xml:/root/.m2/settings.xml
+    networks:
+      irodsnet:
+        aliases:
+          - maven.example.org
+
+networks:
+   irodsnet:
+    driver: bridge
