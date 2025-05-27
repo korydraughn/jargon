@@ -45,8 +45,6 @@ RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add -;
     && \
     rm -rf /tmp/*
 
-EXPOSE 1247 1248
-
 # Configure rsyslog for iRODS.
 COPY irods.rsyslog /etc/rsyslog.d/00-irods.conf
 
