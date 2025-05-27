@@ -433,6 +433,23 @@ public class GeneralAdminInp extends AbstractIRODSPackingInstruction {
 	}
 
 	/**
+	 * Create a packing instruction to add the given iRODS user group to the zone
+	 *
+	 * @param userGroup
+	 *            {@link UserGroup} to add
+	 * @return {@link GeneralAdminInp}
+	 * @throws JargonException
+	 *             for iRODS error
+	 */
+	public static GeneralAdminInp instanceForAddGroup(final UserGroup userGroup) throws JargonException {
+		if (userGroup == null) {
+			throw new IllegalArgumentException("null userGroup");
+		}
+		return new GeneralAdminInp("add", "group", userGroup.getUserGroupName(), BLANK, userGroup.getZone(), BLANK,
+				BLANK, BLANK, BLANK, BLANK, GEN_ADMIN_INP_API_NBR);
+	}
+
+	/**
 	 * Create the packing instruction to add a user to a given iRODS user group
 	 *
 	 * @param userGroupName

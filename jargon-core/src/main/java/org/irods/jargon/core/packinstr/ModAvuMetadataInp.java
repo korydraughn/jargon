@@ -401,7 +401,7 @@ public class ModAvuMetadataInp extends AbstractIRODSPackingInstruction {
 		if (actionType == ActionType.ADD) {
 			argList.add("add");
 		} else if (actionType == ActionType.REMOVE) {
-			argList.add("rmw");
+			argList.add("rm");
 		} else if (actionType == ActionType.MOD) {
 			argList.add("mod");
 		} else if (actionType == ActionType.SET) {
